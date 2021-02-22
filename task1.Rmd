@@ -1,0 +1,23 @@
+---
+title: "AZ Task 1"
+author: "AJ Zekanoski"
+date: "2/22/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, error = FALSE, message = FALSE)
+library(tidyverse)
+library(janitor)
+library(here)
+library(sf)
+library(tmap)
+library(gstat)
+library(stars)
+```
+
+```{r}
+oil_spill <- read_sf(here("Oil_Spill_Incident_Tracking_%5Bds394%5D-shp"), layer = "Oil_Spill_Incident_Tracking_%5Bds394%5D") %>% 
+  clean_names()
+```
+
