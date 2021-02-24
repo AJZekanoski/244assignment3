@@ -1,0 +1,48 @@
+---
+title: "AZ Task 3"
+author: "AJ Zekanoski"
+date: "2/24/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tidytext)
+library(textdata)
+library(pdftools)
+library(ggwordcloud)
+```
+
+Read in cowboy songs text
+```{r, cache = TRUE}
+cowboys_text <- pdf_text("cowboys.pdf")
+```
+
+Check to see one of the pages
+```{r}
+cowboys34 <- cowboys_text[34]
+
+cowboys34
+```
+
+Change it to a tidy dataframe
+```{r}
+cowboy_tidy <- data.frame(cowboys_text) %>% 
+  mutate(text_full = str_split(cowboys_text, pattern = '\\n')) %>% 
+  unnest(text_full) %>% 
+  mutate(text_full = str_trim(text_full))
+```
+
+```{r}
+cowboy_df <- cowboy_tidy %>% 
+  slice(-(1:125)) %>% 
+  mutate(chapter = case_when(
+    str_detect(text_full, "Chapter") ~ text_full,
+    TRUE ~ NA_character_
+  )) %>% 
+  fill(chapter) %>% 
+  separate(col = chapter, into = c("ch", "no"), sep = " ") %>% 
+  mutate(chapter = as.numeric(as.roman(no)))
+```
+

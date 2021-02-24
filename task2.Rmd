@@ -1,0 +1,72 @@
+---
+title: "AZ Task 2"
+author: "AJ Zekanoski"
+date: "2/24/2021"
+output: 
+  html_document:
+  code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(raster)
+library(tidyverse)
+library(here)
+library(sf)
+library(fasterize)
+library(rnaturalearth)
+```
+
+Read in and stack the raster layers.
+```{r}
+cetaceans <- list.files(path = "ca_cetaceans", full.names = TRUE) %>% 
+  raster::stack()
+
+plot(cetaceans)
+
+```
+
+Create a map layer to put everything ontop of. 
+```{r}
+coast_map <- ne_coastline(scale = "small",
+                        returnclass = "sf")
+                       
+plot(coast_map)
+```
+Set a probaility threshold of 0.6. 
+```{r}
+prob_occur <- tribble(~from, ~to, ~value,
+                    0, 0.6, 0,
+                    0.6, 1, 1)
+```
+
+```{r}
+cetaceans_reclass <- reclassify(cetaceans,
+                             prob_occur) %>% 
+  replace_na(replace = 0)
+```
+
+Raster algebra (or just addition I guess) to find richness
+```{r}
+cetacean_richness <- calc(cetaceans_reclass,
+                    fun = sum,
+                    na.rm = FALSE)
+```
+
+Convert to df for plotting
+```{r}
+cetacean_richness_df <- raster::rasterToPoints(cetacean_richness) %>%
+  as.data.frame() %>% 
+  rename("species_richness" = "layer")
+```
+
+Plot it, set x and y lims to zoom in on our area. 
+```{r}
+ggplot()+
+  geom_raster(data = cetacean_richness_df, aes(x = x, 
+                                      y = y, 
+                                      fill = species_richness)) +
+  geom_sf(data = coast_map) +
+  coord_sf(xlim = c(-125, -115), ylim = c(32, 38))
+```
+
