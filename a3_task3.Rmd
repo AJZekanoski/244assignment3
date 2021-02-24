@@ -90,4 +90,19 @@ cowboy_cloud <- ggplot(data = top_words, aes(label = word)) +
 
 cowboy_cloud
 ```
+Time to do sentiment analysis on frequently used cowboy words
+```{r}
+cowboy_afinn <- top_words %>% 
+  inner_join(get_sentiments("afinn"))
+```
+
+```{r}
+
+# Plot them: 
+ggplot(data = cowboy_afinn, aes(x = value, y = n, fill = word)) +
+  geom_col() +
+  labs(x = "Sentiment Values", y = "Number of Uses", title = "Most frequent sentimental words in Songs of the Cattle Trail and Cowcamp") +
+  theme_minimal()
+
+```
 
