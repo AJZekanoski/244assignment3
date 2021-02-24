@@ -77,11 +77,17 @@ Some cowboy specific stop words snuck through to this step so we're going to man
 
 ```{r}
 top_words <- top_100_words %>% 
-  slice(-c(4,5,6,16,43,45,49,73,88))
+  slice(-c(4,5,6,16,43,45,49,53,88))
 ```
 
 Let's make a word cloud for Songs of the Cattle Trail and Cow Camp
 ```{r}
+cowboy_cloud <- ggplot(data = top_words, aes(label = word)) +
+  geom_text_wordcloud(aes(color = n, size = n), shape = "diamond") +
+  scale_size_area(max_size = 8) +
+  scale_color_gradientn(colors = c("brown","yellow","red")) +
+  theme_minimal()
 
+cowboy_cloud
 ```
 
